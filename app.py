@@ -1,25 +1,28 @@
-from backend.services.database import DataBase
 import streamlit as st
 from frontend.index import form_page, dashboard_page
 
 def main():
-    # Cria o banco de dados para depois ser adicionado os valores a ele
-    db = DataBase()
-    db.create_table()
+    st.set_page_config(
+        page_title="Know Your Fan",
+        page_icon="https://images.seeklogo.com/logo-png/52/1/furia-logo-png_seeklogo-526137.png",
+        layout="wide",
+        initial_sidebar_state="auto"
+    )
     
     if "form_enviado" not in st.session_state:
         st.session_state["form_enviado"] = False
 
-    menu_options = ["Formulário"]
-    if st.session_state["form_enviado"]:
-        menu_options.append("Dashboard")
+    menu_options = ["Formulário", "Dashboard"]
 
     escolha = st.sidebar.selectbox("Navegue pelo app", menu_options)
 
     if escolha == "Formulário":
         form_page()
     elif escolha == "Dashboard":
-        dashboard_page(st.session_state["dados"])
+        if "dados" not in st.session_state:
+            st.error("Envie o formulário")
+        else:
+            dashboard_page(st.session_state["dados"])
 
 if __name__ == "__main__":
     main()

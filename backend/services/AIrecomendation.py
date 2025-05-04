@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def gerar_recomendacoes_com_ia(nome, interesses, atividades, eventos, compras):
+def get_recomendationsAI(nome, interesses, atividades, eventos, compras):
     prompt = f"""
     Gere recomendações personalizadas para um fã da organização de e-sports FURIA com base nas informações abaixo.
 
@@ -19,7 +19,7 @@ def gerar_recomendacoes_com_ia(nome, interesses, atividades, eventos, compras):
     """
 
     response = client.chat.completions.create(
-        model="gpt-4",  # ou "gpt-4" se preferir
+        model="gpt-4",
         messages=[
             {"role": "system", "content": "Você é um especialista em criar recomendações personalizadas para fãs de e-sports da FURIA, com base nas preferências e interesses individuais"},
             {"role": "user", "content": prompt}

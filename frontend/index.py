@@ -1,79 +1,92 @@
 import streamlit as st
-import time
-from backend.utils.verifyFields import verify
-from backend.services.database import DataBase
-from backend.utils.savePhoto import save_user_photo
-from backend.utils.verifyDocs import extract_textFromImg, extract_cpfFromText
-from requests import request
-from dotenv import load_dotenv
 import os
-import requests
 import praw
 import pandas as pd
-import matplotlib.pyplot as plt
-import plotly.express as px
-from backend.services.IArecomendation import gerar_recomendacoes_com_ia
+import time
+from dotenv import load_dotenv
+from backend.utils.verifyFields import verify
+from backend.utils.savePhoto import save_user_photo
+from backend.utils.verifyDocs import extract_textFromImg, extract_cpfFromText
+from backend.services.AIrecomendation import get_recomendationsAI
 
 def form_page():
+
+    st.markdown("""
+        <style>
+        .stTextInput > div > input {
+            background-color: #f0f0f5;
+            border-radius: 8px;
+            padding: 8px;
+        }
+        .stButton button {
+            background-color: #ff4b4b;
+            color: white;
+            font-weight: bold;
+            border-radius: 8px;
+            padding: 10px 20px;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    st.image("C:\\Users\\hugoj\\OneDrive\\Documentos\\Know-your-Fan-FURIA\\logo.png", width=150)
     st.title("Know Your Fan FURIA 🔥")
-        
+    st.markdown("### 👤 Formulário do Fã")
+
     with st.form(key="form_user_data"):
-        nome = st.text_input("Informe o seu nome completo")
-        email = st.text_input("Informe seu email")
-        endereco = st.text_input("Informe seu endereço")
-        idade = st.text_input("Informe sua idade")
-        cpf = st.text_input("Informe seu CPF", placeholder="Ex: 000.000.000-00")
-        interesses = st.text_input("Informe seus interesses")
-        atividades = st.text_input("Ïnforme suas atividades")
-        eventos = st.text_input("Informe os eventos que você mais gosta de seguir")
-        user_reddit = st.text_input("Informe o nome do seu perfil no reddit", placeholder="MisgoNato")
-        compras = st.text_input("Informe as compras que você realizou no ultimo mes")
-        user_photo = st.file_uploader("Adicione uma foto da sua identidade", type=["png, jpeg"], accept_multiple_files=False, help="CPF ou RG")
+        col1, col2 = st.columns(2)
+
+        with col1:
+            nome = st.text_input("Nome completo")
+            email = st.text_input("Email")
+            idade = st.text_input("Idade")
+            cpf = st.text_input("CPF", placeholder="Ex: 000.000.000-00")
+            interesses = st.text_input("Interesses", placeholder="Ex: valorant, cs go, lol, etc")
+
+        with col2:
+            endereco = st.text_input("Endereço")
+            atividades = st.text_input("Quais são as suas atividades no dia a dia?")
+            eventos = st.text_input("Quais são os eventos você mais acompanha?")
+            user_reddit = st.text_input("Perfil no Reddit", placeholder="JaoJoao")
+            compras = st.text_input("Quais as suas últimas compras feitas no último mês?")
+
+        user_photo = st.file_uploader("📸 Foto da identidade (CPF ou RG)", type=["png", "jpeg"], accept_multiple_files=False)
 
         enviar = st.form_submit_button("Enviar")
 
     if enviar:
-    
         errors = verify(nome, email, endereco, idade, cpf, interesses, eventos, atividades, compras, user_photo)
-        
+
         if not errors:
             dados = {}
-            # Validação com ORC
             photo_path = save_user_photo(user_photo, cpf)
             photo_inText = extract_textFromImg(photo_path)
 
             if not photo_inText:
                 st.error("Foto inválida, tire outra foto")
-            else:
-                cpf_extracted = extract_cpfFromText(photo_inText)
+                return
 
+            cpf_extracted = extract_cpfFromText(photo_inText)
 
-            # Envio para o banco de dados
-            conn = DataBase()
-            if conn.cpf_exists(cpf):
-                msg = st.error("Este usuário já existe")
-                time.sleep(3)
-                msg.empty()
+            if cpf not in cpf_extracted:
+                st.error("Foto não bate com o CPF, tire outra foto")
             else:
-                if cpf not in cpf_extracted:
-                    st.error("Foto não bate com o CPF, tire outra foto")
-                else:
-                    msg = st.success("Dados enviados com sucesso")
-                    time.sleep(3)
-                    msg.empty()
-                    conn.insert_user(nome, email, endereco, idade, cpf, interesses, eventos, atividades, compras, photo_path)
+                with st.spinner("Enviando dados..."):
+                    time.sleep(2)
                     st.session_state["form_enviado"] = True
                     dados = {"nome": nome, "email": email, "endereco": endereco, "idade": idade, "cpf": cpf, "interesses": interesses, "atividades": atividades, "eventos": eventos, "user_reddit": user_reddit, "compras": compras, "photo_path": photo_path}
                     st.session_state["dados"] = dados
 
-                    st.rerun()
+                time.sleep(2)
+                st.success("Dados enviados com sucesso!")
         else:
             for i in errors:
-                msg = st.error(i)
+                st.error(i)
 
 def dashboard_page(dados):
+    """Pagina para mostrar os dados pegos do usuario no reddit"""
+    
+    # Variaveis de ambiente
     load_dotenv()
-
     CLIENT_ID = os.getenv('CLIENT_ID')
     CLIENT_SECRET = os.getenv('CLIENT_SECRET')
 
@@ -83,15 +96,17 @@ def dashboard_page(dados):
         user_agent="Know Your Fan v1.0 by /u/MisgoNato"
     )
 
+    # Filtro de pesquisa
     user_nickname = dados["user_reddit"]
     query_terms = ["FURIA", "FURIA CS:GO", "furia csgo", "Fúria", "Furia cs2", "FURIA valorant", "furia dota2", "furia pugb", "furia"]
 
+    # Requisição a API do Reddit
     user = reddit.redditor(user_nickname)
 
     relevant_posts = []
     relevant_comments = []
 
-    # Buscar os posts do usuário
+    # Busca de posts
     for post in user.submissions.new(limit=100):
         if any(term.lower() in post.title.lower() or term.lower() in post.selftext.lower() for term in query_terms):
             relevant_posts.append({
@@ -102,7 +117,7 @@ def dashboard_page(dados):
                 "data": pd.to_datetime(post.created_utc, unit="s")
             })
 
-    # Buscar os comentários do usuário
+    # Busca de comentarios
     for comment in user.comments.new(limit=100):
         if any(term.lower() in comment.body.lower() for term in query_terms):
             relevant_comments.append({
@@ -116,64 +131,48 @@ def dashboard_page(dados):
     all_data = relevant_posts + relevant_comments
     df = pd.DataFrame(all_data)
 
-    st.title("Dashboard do Fã - Reddit")
-    
-    # Melhorar a visibilidade
+    st.title("📊 Dashboard do Fã - Reddit")
+
     if df.empty:
-        st.info("Nenhuma atividade relacionada à FURIA ou encontrada para este usuário.")
+        st.info("Nenhuma atividade relacionada à FURIA foi encontrada.")
         return
 
-    st.markdown(f"### Total de atividades relacionadas: {len(df)}")
+    # Graficos
+    col1, col2 = st.columns(2)
+    col1.metric("Atividades relacionadas", len(df))
+    col2.metric("Pontuação Total", df['pontuacao'].sum())
+
     st.dataframe(df)
 
-    # Mostrar distribuição de subreddits de forma mais visual
-    st.markdown("### Distribuição de Atividades por Subreddit")
-    subreddit_counts = df['subreddit'].value_counts()
-    st.bar_chart(subreddit_counts)
+    st.markdown("### Distribuição por Subreddit")
+    st.bar_chart(df['subreddit'].value_counts())
 
-    # Mostrar distribuição de tipo de atividade
-    st.markdown("### Distribuição entre Posts e Comentários")
-    tipo_counts = df['tipo'].value_counts()
-    st.bar_chart(tipo_counts)
+    st.markdown("### Posts vs Comentários")
+    st.bar_chart(df['tipo'].value_counts())
 
-    # Atividades ao longo do tempo
     st.markdown("### Atividades ao Longo do Tempo")
     timeline = df.groupby(df['data'].dt.to_period("M")).size()
     st.line_chart(timeline)
 
-    # Pontuação do usuário para posts e comentários relacionados à FURIA
+    # Score do usuario
     user_activity_score = df['pontuacao'].sum()
 
-    # Mostrar o score do usuário de maneira clara
-    st.markdown(f"### **Score do Usuário (FURIA)**")
-    st.markdown(f"- **Score de atividades relacionadas a FURIA**: {user_activity_score}")
-
-    # Comparar os scores
-    if user_activity_score > 0:
-        activity_percentage = (user_activity_score / user_activity_score) * 100  # Essa comparação sempre vai resultar em 100, então pode ser ajustado
-    else:
-        activity_percentage = 0
-
-    st.markdown(f"- **Porcentagem de atividade relacionada à FURIA**: {activity_percentage:.2f}%")
-
+    st.markdown("### ⭐ Score do Usuário FURIA")
     if user_activity_score > 20:
-        st.success("Este usuário é altamente ativo relacionado à FURIA!")
+        st.success("Usuário altamente ativo sobre FURIA!")
     else:
-        st.warning("Este usuário não é muito ativo relacionado à FURIA.")
+        st.warning("Usuário com pouca atividade sobre FURIA.")
 
-    # Recomendações baseadas na IA
-    st.markdown("### **Recomendações Personalizadas**")
-    recomendacoes_ia = gerar_recomendacoes_com_ia(
-        dados["nome"],
-        dados["interesses"],
-        dados["atividades"],
-        dados["eventos"],
-        dados["compras"]
+    # Recomendações IA
+    st.markdown("### 🔮 Recomendações Personalizadas")
+    recomendacoes_ia = get_recomendationsAI(
+        dados["nome"], dados["interesses"], dados["atividades"], dados["eventos"], dados["compras"]
     )
 
-    # Formatar as recomendações para visualização
     if recomendacoes_ia:
         for rec in recomendacoes_ia:
-            st.markdown(f"- {rec}")
+            rec = rec.strip()
+            if rec:
+                st.success(f"✅ {rec}")
     else:
         st.info("Não há recomendações no momento.")
