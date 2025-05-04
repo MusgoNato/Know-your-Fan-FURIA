@@ -58,12 +58,13 @@ Know-your-Fan-FURIA/
 # Configurações
 Renomeie o arquivo `.env.example para` para `.env` e configure as seguintes variáveis de ambiente:
 ```
+OPENAI_API_KEY
 CLIENT_ID=SEU_CLIENT_ID_DO_REDDIT    # Fica localizado abaixo do icone do aplicativo criado
 
 CLIENT_SECRET=SEU_CLIENT_SECRET_DO_REDDIT # Fica localizado no campo secret
 ```
-
-Cada uma dessas variaveis você pode acessar criando um aplicativo de desenvolvedor do tipo script nesta página do reddit: [API REDDIT](https://www.reddit.com/prefs/apps)
+- A variavel da OPENAI você deve ter uma conta com acesso a chave API para desenvolvedor. [API OPENAI](https://platform.openai.com/api-keys)
+- As variaveis do REDDIT você pode acessar criando um aplicativo de desenvolvedor do tipo script nesta página do reddit: [API REDDIT](https://www.reddit.com/prefs/apps)
 
 # Pré-Requisitos
 - Python 3.9+
