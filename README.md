@@ -1,4 +1,5 @@
 # Know-your-Fan-FURIA
+Know Your Fan aproxima as empresas de seus fãs, permitindo entender seus interesses, comportamentos e preferências. A partir desses dados, é possível criar experiências personalizadas e recomendações direcionadas, fortalecendo o relacionamento entre marcas e seus públicos.
 
 # Demo
 Formulário
