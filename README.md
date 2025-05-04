@@ -12,6 +12,7 @@ Dashboard
 ```
 Know-your-Fan-FURIA/
 ├── assets/
+│   ├── imgs/
 │   ├── user/
 ├── backend/
 │   ├── services/
