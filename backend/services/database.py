@@ -40,8 +40,16 @@ class DataBase:
         ''', (nome, email, endereco, idade, cpf, interesses, atividades, eventos, compras, user_photo))
         self.commit()
 
-        print("Novo usuario no banco de dados!")
+        print("Dados inseridos ao banco com suceso")
 
+    def describe(self):
+        cursor = self.cursor()
+        cursor.execute(''''SELECT * FROM fans''')
+
+    def cpf_exists(self, cpf):
+        cursor = self.cursor()
+        cursor.execute("SELECT 1 FROM fans WHERE cpf = ?", (cpf,))
+        return cursor.fetchone() is not None
 
     @property
     def connection(self):
