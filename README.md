@@ -5,7 +5,8 @@ Know Your Fan aproxima as empresas de seus fãs, permitindo entender seus intere
 Devido a maioria dos servidores serem pagos e caso grátis terem limitações, é recomendado que este projeto rode localmente para todas as funcionalidades estarem funcionando, então siga os passos abaixo para fazer a instalação corretamente em sua máquina local. 
 
 # Demo
-Formulário
+[Assista a demo](https://youtu.be/qDmn8GtqL_c)
+
 ![1](assets/imgs/demo1.png)
 Dashboard
 ![2](assets/imgs/demo2.png)
