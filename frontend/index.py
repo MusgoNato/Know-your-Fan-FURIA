@@ -28,7 +28,7 @@ def form_page():
         </style>
     """, unsafe_allow_html=True)
 
-    st.image("C:\\Users\\hugoj\\OneDrive\\Documentos\\Know-your-Fan-FURIA\\logo.png", width=150)
+    st.image("https://vectorseek.com/wp-content/uploads/2023/04/Furia-Esports-Logo-Vector.jpg", width=150)
     st.title("Know Your Fan FURIA 🔥")
     st.markdown("### 👤 Formulário do Fã")
 
