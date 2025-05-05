@@ -1,6 +1,9 @@
 # Know-your-Fan-FURIA
 Know Your Fan aproxima as empresas de seus fãs, permitindo entender seus interesses, comportamentos e preferências. A partir desses dados, é possível criar experiências personalizadas e recomendações direcionadas, fortalecendo o relacionamento entre marcas e seus públicos.
 
+# Importante
+Devido a maioria dos servidores serem pagos e caso grátis terem limitações, é recomendado que este projeto rode localmente para todas as funcionalidades estarem funcionando, então siga os passos abaixo para fazer a instalação corretamente em sua máquina local. 
+
 # Demo
 Formulário
 ![1](assets/imgs/demo1.png)
@@ -70,7 +73,7 @@ CLIENT_SECRET=SEU_CLIENT_SECRET_DO_REDDIT # Fica localizado no campo secret
 # Pré-Requisitos
 - Python 3.9+
 - Conta no Reddit (para acessar a API)
-- Tesseract OCR instalado e no PATH (usado na extração de CPF via imagem). Durante a instalação, marque a opção “Add to PATH”. [TESSERACT](https://tesseract-ocr.github.io/tessdoc/Downloads.html)
+- Tesseract OCR instalado e no PATH (usado na extração de CPF via imagem). É de suma importância instalar o projeto em C:\Program FIles, marque a opção “Add to PATH”. [TESSERACT](https://tesseract-ocr.github.io/tessdoc/Downloads.html)
 
 # Execução do projeto
 No terminal execute a linha de código a seguir:
