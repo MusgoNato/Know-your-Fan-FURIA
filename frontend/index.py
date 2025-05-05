@@ -58,8 +58,7 @@ def form_page():
 
         if not errors:
             dados = {}
-            photo_path = save_user_photo(user_photo, cpf)
-            photo_inText = extract_textFromImg(photo_path)
+            photo_inText = extract_textFromImg(save_user_photo(user_photo))
 
             if not photo_inText:
                 st.error("Foto inválida, tire outra foto")
@@ -73,7 +72,7 @@ def form_page():
                 with st.spinner("Enviando dados..."):
                     time.sleep(2)
                     st.session_state["form_enviado"] = True
-                    dados = {"nome": nome, "email": email, "endereco": endereco, "idade": idade, "cpf": cpf, "interesses": interesses, "atividades": atividades, "eventos": eventos, "user_reddit": user_reddit, "compras": compras, "photo_path": photo_path}
+                    dados = {"nome": nome, "email": email, "endereco": endereco, "idade": idade, "cpf": cpf, "interesses": interesses, "atividades": atividades, "eventos": eventos, "user_reddit": user_reddit, "compras": compras, "photo_path": user_photo}
                     st.session_state["dados"] = dados
 
                 time.sleep(2)
