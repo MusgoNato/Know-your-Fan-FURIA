@@ -31,7 +31,6 @@ Know-your-Fan-FURIA/
 ├── .env.example
 ├── .gitignore
 ├── app.py
-├── logo.png
 ├── README.md
 └── requirements.txt 
 ```
